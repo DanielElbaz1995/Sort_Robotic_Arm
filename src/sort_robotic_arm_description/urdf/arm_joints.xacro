@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:fixed_joint name="ground_base" parent="ground_link" child="base_link"
+                       xyz="0 0 0" rpy="0 0 0" />
+
+    <xacro:fixed_joint name="base_servo1" parent="base_link" child="servo1_link"
+                       xyz="0 0 0" rpy="0 0 0" />
+
+    <xacro:continuous_joint name="servo1_waist" parent="servo1_link" child="waist_link"
+                       xyz="0 0 0.56" rpy="0 0 0" xyz_rotate="0 0 1" />
+
+    <xacro:fixed_joint name="waist_servo2" parent="waist_link" child="servo2_link"
+                       xyz="0 0 0" rpy="-0.785 0 0" />
+
+    <!-- <xacro:revolute_joint name="servo2_arm1" parent="servo2_link" child="arm1_link"
+                       xyz="0.068 -0.3755 0.18" rpy="0 -1.57 0" xyz_rotate="0 0 1"
+                       lower="-0.785" upper="0.785" effort="10.0" velocity="1.0" /> -->
+    <xacro:continuous_joint name="servo2_arm1" parent="servo2_link" child="arm1_link"
+                       xyz="0.068 -0.3755 0.18" rpy="0 -1.57 0" xyz_rotate="0 0 1" />
+
+    <!-- <xacro:revolute_joint name="arm1_servo3" parent="arm1_link" child="servo3_link"
+                       xyz="0 -1.2 0" rpy="0 0 0" xyz_rotate="0 0 1"
+                       lower="-3.14" upper="0" effort="10.0" velocity="1.0" /> -->
+    <xacro:continuous_joint name="arm1_servo3" parent="arm1_link" child="servo3_link"
+                       xyz="0 -1.2 0" rpy="0 0 0" xyz_rotate="0 0 1" />
+
+    <xacro:fixed_joint name="servo3_arm2" parent="servo3_link" child="arm2_link"
+                       xyz="0 0 0" rpy="3.14 0 0" />
+
+    <xacro:fixed_joint name="arm2_micro_servo1" parent="arm2_link" child="micro_servo1_link"
+                       xyz="0 0 0" rpy="0 -1.57 0" />
+
+    <xacro:continuous_joint name="micro_servo1_arm3" parent="micro_servo1_link" child="arm3_link"
+                       xyz="-0.115 0.9225 -0.05" rpy="0 -1.57 0" xyz_rotate="0 1 0" />
+
+    <xacro:fixed_joint name="arm3_micro_servo2" parent="arm3_link" child="micro_servo2_link"
+                       xyz="0 0 0" rpy="0 0 0" />
+    
+    <xacro:continuous_joint name="micro_servo2_gripper_base" parent="micro_servo2_link" child="gripper_base_link"
+                       xyz="0.165 0.28 0.05" rpy="-3.14 -3.14 0" xyz_rotate="1 0 0" />
+
+    <xacro:fixed_joint name="gripper_base_micro_servo3" parent="gripper_base_link" child="micro_servo3_link"
+                       xyz="0 0 0" rpy="0 0 0" />
+
+    <xacro:revolute_joint name="micro_servo3_gear2" parent="micro_servo3_link" child="gear2_link"
+                       xyz="0.179 -0.36 0.14" rpy="0 0 0" xyz_rotate="0 0 1"
+                       lower="0.1" upper="1.3" effort="10.0" velocity="1.0" />
+    <!-- <xacro:continuous_joint name="micro_servo3_gear2" parent="micro_servo3_link" child="gear2_link"
+                       xyz="0.179 -0.36 0.14" rpy="0 0 0" xyz_rotate="0 0 1" /> -->
+
+    <xacro:mimic_continuous_joint name="gripper_base_gear1" parent="gripper_base_link" child="gear1_link"
+                       xyz="-0.09 -0.36 0.14" rpy="0 0 3.05" xyz_rotate="0 0 -1"/>
+
+    <xacro:mimic_continuous_joint name="gripper_base_up_right_gripper_link" parent="gripper_base_link" child="up_right_gripper_link_link"
+                       xyz="0.09 -0.56 0.14" rpy="0 0 0" xyz_rotate="0 0 1"/>
+
+    <xacro:mimic_continuous_joint name="gripper_base_up_left_gripper_link" parent="gripper_base_link" child="up_left_gripper_link_link"
+                       xyz="-0.01 -0.56 0.14" rpy="0 0 -0.1" xyz_rotate="0 0 -1"/>
+
+    <xacro:mimic_continuous_joint name="gripper_base_down_right_gripper_link" parent="gripper_base_link" child="down_right_gripper_link_link"
+                       xyz="0.09 -0.58 0.02" rpy="0 0 0" xyz_rotate="0 0 1"/>
+
+    <xacro:mimic_continuous_joint name="gripper_base_down_left_gripper_link" parent="gripper_base_link" child="down_left_gripper_link_link"
+                       xyz="-0.01 -0.58 0.02" rpy="0 0 -0.1" xyz_rotate="0 0 -1"/>
+
+    <xacro:mimic_continuous_joint name="gear2_right_gripper" parent="gear2_link" child="right_gripper_link"
+                       xyz="0 -0.3075 0" rpy="0 0 -3.5" xyz_rotate="0 0 -1"/>
+                       
+    <xacro:mimic_continuous_joint name="gear1_left_gripper" parent="gear1_link" child="left_gripper_link"
+                       xyz="0 0.3075 0" rpy="0 0 0.45" xyz_rotate="0 0 1"/>
+</robot>

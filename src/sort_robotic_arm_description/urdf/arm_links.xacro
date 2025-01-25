@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <link name="ground_link" />
+
+    <xacro:cylinder_link name="base" file="package://sort_robotic_arm_description/meshes/Arm_Base/Base.STL"
+            radius="0.60625" length="0.56" color="yellow" xyz_visual="-0.60625 0.60625 0" 
+            rpy_visual="1.57 0 0" xyz_collision="0 0 0.28" rpy_collision="0 0 0" mass="0.12115" 
+            ixx="0.16" ixy="0.0" ixz="0.0" iyy="0.17" iyz="0.0" izz="0.26" />
+
+    <xacro:box_link name="servo1" file="package://sort_robotic_arm_description/meshes/Servos/Servo_MG996R.STL"
+            size="0.558 0.205 0.474" color="grey" xyz_visual="0.1025 0.1825 0.12" 
+            rpy_visual="0 0 3.14" xyz_collision="0.087 -0.0229 0.364" rpy_collision="0 0 0" mass="0.06365" 
+            ixx="0.018" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01" />
+
+    <xacro:cylinder_link name="waist" file="package://sort_robotic_arm_description/meshes/Arm_Base/Waist.STL"
+            radius="0.485" length="0.16" color="yellow" xyz_visual="-0.485 -0.485 0" 
+            rpy_visual="0 0 0" xyz_collision="0 0 0.08" rpy_collision="0 0 0" mass="0.09702" 
+            ixx="0.085" ixy="0.0" ixz="-0.003" iyy="0.0006" iyz="-0.008" izz="0.07" />
+
+    <xacro:box_link name="servo2" file="package://sort_robotic_arm_description/meshes/Servos/Servo_MG996R.STL"
+            size="0.558 0.205 0.474" color="grey" xyz_visual="-0.41 -0.5515 0.2883" 
+            rpy_visual="0 1.57 0" xyz_collision="-0.216 -0.258 0.107" rpy_collision="1.57 0 0" mass="0.06365" 
+            ixx="0.018" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01" />
+    
+    <xacro:cylinder_link name="arm1" file="package://sort_robotic_arm_description/meshes/Arm_Base/Arm1.STL"
+            radius="0.21" length="1.62" color="yellow" xyz_visual="0.3125 0.21 -0.23" 
+            rpy_visual="0 0 -3.14" xyz_collision="0.025 -0.63 -0.05" rpy_collision="1.57 0 0" mass="0.05231" 
+            ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.00006" iyz="0.0" izz="0.01" />
+
+    <xacro:box_link name="servo3" file="package://sort_robotic_arm_description/meshes/Servos/Servo_MG996R.STL"
+            size="0.558 0.205 0.474" color="grey" xyz_visual="-0.1025 0.1825 0.474" 
+            rpy_visual="3.14 0 0" xyz_collision="0 -0.1 0.237" rpy_collision="0 0 1.57" mass="0.06365" 
+            ixx="0.018" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01" />
+    
+    <xacro:box_link name="arm2" file="package://sort_robotic_arm_description/meshes/Arm_Base/Arm2.STL"
+            size="0.38 1.15 0.27" color="yellow" xyz_visual="-0.19 -0.2525 -0.242" 
+            rpy_visual="0 0 0" xyz_collision="0 0.35 -0.135" rpy_collision="0 0 0" mass="0.05161" 
+            ixx="0.00058" ixy="0.0" ixz="0.0" iyy="0.00009" iyz="0.0" izz="0.00062" />
+
+    <xacro:box_link name="micro_servo1" file="package://sort_robotic_arm_description/meshes/Servos/Micro_Servo.STL"
+            size="0.326 0.124 0.299" color="blue" xyz_visual="-0.115 0.6645 -0.12" 
+            rpy_visual="-1.57 0 0" xyz_collision="-0.1 0.05 0" rpy_collision="0 0 1.57" mass="0.01285" 
+            ixx="0.000013" ixy="0.0" ixz="0.0" iyy="0.00008" iyz="0.0" izz="0.00008" />
+
+    <xacro:box_link name="arm3" file="package://sort_robotic_arm_description/meshes/Arm_Base/Arm3.STL"
+            size="0.28 0.33 0.46" color="yellow" xyz_visual="-0.14 0 0.215" 
+            rpy_visual="-1.57 0 0" xyz_collision="0 0.2 0" rpy_collision="-1.57 0 0" mass="0.0206" 
+            ixx="0.000063" ixy="0.0" ixz="0.000007" iyy="0.00005" iyz="0.0" izz="0.000032" />
+
+    <xacro:box_link name="micro_servo2" file="package://sort_robotic_arm_description/meshes/Servos/Micro_Servo.STL"
+            size="0.326 0.124 0.299" color="blue" xyz_visual="-0.098 0.34 0.055" 
+            rpy_visual="0 1.57 0" xyz_collision="0 0.218 0" rpy_collision="1.57 0 1.57" mass="0.01285" 
+            ixx="0.000013" ixy="0.0" ixz="0.0" iyy="0.00008" iyz="0.0" izz="0.00008" />
+    
+    <xacro:box_link name="gripper_base" file="package://sort_robotic_arm_description/meshes/Arm_Gripper/Gripper_Base.STL"
+            size="0.533 0.77 0.24" color="yellow" xyz_visual="-0.14 -0.63 -0.14" 
+            rpy_visual="0 0 0" xyz_collision="0.1 -0.28 0" rpy_collision="0 0 0" mass="0.02131" 
+            ixx="0.00009" ixy="0.000025" ixz="0.0000055" iyy="0.00005" iyz="0.000016" izz="0.00012" />
+
+    <xacro:box_link name="micro_servo3" file="package://sort_robotic_arm_description/meshes/Servos/Micro_Servo.STL"
+            size="0.326 0.124 0.299" color="blue" xyz_visual="0.117 -0.38 -0.1037" 
+            rpy_visual="0 0 1.57" xyz_collision="0.23 -0.38 0" rpy_collision="0 0 0" mass="0.01285" 
+            ixx="0.000013" ixy="0.0" ixz="0.0" iyy="0.00008" iyz="0.0" izz="0.00008" />
+
+    <xacro:cylinder_link name="gear2" file="package://sort_robotic_arm_description/meshes/Arm_Gripper/Gear2.STL"
+            radius="0.133" length="0.04" color="yellow" xyz_visual="0.1209 -0.3475 0" 
+            rpy_visual="0 -1.57 0" xyz_collision="-0.01 0 0" rpy_collision="0 0 0" mass="0.00277" 
+            ixx="0.00005" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.000046" />
+
+    <xacro:cylinder_link name="gear1" file="package://sort_robotic_arm_description/meshes/Arm_Gripper/Gear1.STL"
+            radius="0.133" length="0.04" color="yellow" xyz_visual="0.1209 -0.1463 0" 
+            rpy_visual="0 -1.57 0" xyz_collision="-0.01 0 0" rpy_collision="0 0 0" mass="0.00332" 
+            ixx="0.00005" ixy="0.0" ixz="0.0" iyy="0.0001" iyz="0.0" izz="0.000046" />
+  
+    <xacro:macro name="gripper_link_link" params="prefix xyz_collision">
+        <link name="${prefix}_gripper_link_link"> 
+            <visual>
+                <geometry>
+                    <mesh filename="package://sort_robotic_arm_description/meshes/Arm_Gripper/Gripper_Link.STL" scale="0.01 0.01 0.01"/>
+                </geometry>
+                <origin xyz="0.04 0.04 0" rpy="0 0 3.14" />
+                <material name="yellow" />
+            </visual>
+            <collision>
+                <geometry>
+                    <box size="0.08 0.4 0.04" />
+                </geometry>
+                <origin xyz="${xyz_collision}" rpy="0 0 0" />
+            </collision>
+            <inertial>
+                <origin xyz="${xyz_collision}" rpy="0 0 0" />
+                <mass value="0.001" />
+                <inertia ixx="0.0000013" ixy="0.0" ixz="0.0"
+                        iyy="0.000000045" iyz="0.0"
+                        izz="0.0000013" />
+            </inertial>
+        </link>
+    </xacro:macro>
+
+    <xacro:gripper_link_link prefix="up_right" xyz_collision="0 -0.15 0.02" />
+    <xacro:gripper_link_link prefix="up_left" xyz_collision="0 -0.15 0" />
+    <xacro:gripper_link_link prefix="down_right" xyz_collision="0 -0.15 0" />
+    <xacro:gripper_link_link prefix="down_left" xyz_collision="0 -0.15 0" />
+
+    <xacro:macro name="gripper_link" params="prefix xyz_visual rpy">
+        <link name="${prefix}_gripper_link"> 
+            <visual>
+                <geometry>
+                    <mesh filename="package://sort_robotic_arm_description/meshes/Arm_Gripper/Gripper.STL" scale="0.01 0.01 0.01"/>
+                </geometry>
+                <origin xyz="${xyz_visual}" rpy="${rpy}" />
+                <material name="yellow" />
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="package://sort_robotic_arm_description/meshes/Arm_Gripper/Gripper.STL" scale="0.01 0.01 0.01"/>
+                </geometry>
+                <origin xyz="${xyz_visual}" rpy="${rpy}" />
+            </collision>
+            <inertial>
+                <origin xyz="0 0.28 0" rpy="${rpy}" />
+                <mass value="0.00589" />
+                <inertia ixx="0.000018" ixy="0.0" ixz="0.0"
+                        iyy="0.0000016" iyz="0.0"
+                        izz="0.000019" />
+            </inertial>
+        </link>
+    </xacro:macro>
+    
+    <xacro:gripper_link prefix="right" xyz_visual="-0.1462 -0.05 -0.085" rpy="0 0 0" />
+    <xacro:gripper_link prefix="left" xyz_visual="0.153 -0.05 0" rpy="0 3.14 0"  />
+</robot>

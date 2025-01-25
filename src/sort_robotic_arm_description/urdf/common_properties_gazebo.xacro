@@ -1,0 +1,147 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:macro name="Yellow" params="link" >
+        <gazebo reference="${link}" >
+            <material>Gazebo/Yellow</material>
+        </gazebo>
+    </xacro:macro>
+
+    <xacro:macro name="Grey" params="link" >
+        <gazebo reference="${link}" >
+            <material>Gazebo/Gray</material>
+        </gazebo>
+    </xacro:macro>
+
+    <xacro:macro name="Blue" params="link" >
+        <gazebo reference="${link}" >
+            <material>Gazebo/Blue</material>
+        </gazebo>
+    </xacro:macro>
+
+    <xacro:macro name="joint_plugin" params="joint initial_value" >
+        <joint name="${joint}">
+            <command_interface name="position" />
+            <state_interface name="position" >
+                <param name="initial_value">${initial_value}</param>
+            </state_interface>
+            <state_interface name="velocity" />
+            <state_interface name="effort"/>
+        </joint>
+    </xacro:macro>
+
+    <xacro:macro name="joint_plugin_effort" params="joint initial_value" >
+        <joint name="${joint}">
+            <command_interface name="position" />
+            <command_interface name="effort" />
+                <param name="max">100</param>
+            <state_interface name="position" >
+                <param name="initial_value">${initial_value}</param>
+            </state_interface>
+            <state_interface name="velocity" />
+            <state_interface name="effort"/>
+        </joint>
+    </xacro:macro>
+
+    <xacro:Yellow link="base_link" />
+    <xacro:Grey link="servo1_link" />
+    <xacro:Yellow link="waist_link" />
+    <xacro:Grey link="servo2_link" />
+    <xacro:Yellow link="arm1_link" />
+    <xacro:Grey link="servo3_link" />
+    <xacro:Yellow link="arm2_link" />
+    <xacro:Blue link="micro_servo1_link" />
+    <xacro:Yellow link="arm3_link" />
+    <xacro:Blue link="micro_servo2_link" />
+    <xacro:Yellow link="gripper_base_link" />
+    <xacro:Blue link="micro_servo3_link" />
+    <xacro:Yellow link="gear2_link" />
+    <xacro:Yellow link="gear1_link" />
+    <xacro:Yellow link="up_right_gripper_link_link" />
+    <xacro:Yellow link="up_left_gripper_link_link" />
+    <xacro:Yellow link="down_right_gripper_link_link" />
+    <xacro:Yellow link="down_left_gripper_link_link" />
+    <xacro:Yellow link="right_gripper_link" />
+    <xacro:Yellow link="left_gripper_link" />
+
+    <xacro:Blue link="right_tower_link" />
+    <xacro:Blue link="left_tower_link" />
+    <xacro:Blue link="up_tower_link" />
+
+    <ros2_control name="GazeboSimSystem" type="system">
+        <hardware>
+            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+        </hardware>
+
+        <xacro:joint_plugin joint="servo1_waist_joint" initial_value="0.0" />
+        <xacro:joint_plugin joint="servo2_arm1_joint" initial_value="0.0" />
+        <xacro:joint_plugin joint="arm1_servo3_joint" initial_value="0.0" />
+        <xacro:joint_plugin joint="micro_servo1_arm3_joint" initial_value="0.0" />
+        <xacro:joint_plugin joint="micro_servo2_gripper_base_joint" initial_value="0.0" />
+        <xacro:joint_plugin joint="micro_servo3_gear2_joint" initial_value="0.785" />
+        <xacro:joint_plugin joint="gripper_base_gear1_joint" initial_value="0.785" />
+        <xacro:joint_plugin joint="gripper_base_up_right_gripper_link_joint" initial_value="0.785" />
+        <xacro:joint_plugin joint="gripper_base_up_left_gripper_link_joint" initial_value="0.785" />
+        <xacro:joint_plugin joint="gripper_base_down_right_gripper_link_joint" initial_value="0.785" />
+        <xacro:joint_plugin joint="gripper_base_down_left_gripper_link_joint" initial_value="0.785" />
+        <xacro:joint_plugin_effort joint="gear2_right_gripper_joint" initial_value="0.785" />
+        <xacro:joint_plugin_effort joint="gear1_left_gripper_joint" initial_value="0.785" />
+        
+    </ros2_control>
+
+    <!-- <gazebo>
+        <plugin name="gazebo_grasp_fix_right" filename="libgazebo_grasp_fix.so">
+            <arm>
+            <palm_link>gear2_link</palm_link>
+            <gripper_link>right_gripper_link</gripper_link>
+            </arm>
+            <forces_angle_tolerance>180</forces_angle_tolerance>
+            <update_rate>10</update_rate>
+            <grip_count_threshold>4</grip_count_threshold>
+            <max_grip_count>8</max_grip_count>
+            <release_tolerance>0.005</release_tolerance>
+            <disable_collisions_on_attach>false</disable_collisions_on_attach>
+            <contact_topic>__default_topic__</contact_topic>
+        </plugin>
+    </gazebo>
+
+    <gazebo>
+        <plugin name="gazebo_grasp_fix_left" filename="libgazebo_grasp_fix.so">
+            <arm>
+            <palm_link>gear1_link</palm_link>
+            <gripper_link>left_gripper_link</gripper_link>
+            </arm>
+            <forces_angle_tolerance>180</forces_angle_tolerance>
+            <update_rate>10</update_rate>
+            <grip_count_threshold>4</grip_count_threshold>
+            <max_grip_count>8</max_grip_count>
+            <release_tolerance>0.005</release_tolerance>
+            <disable_collisions_on_attach>false</disable_collisions_on_attach>
+            <contact_topic>__default_topic__</contact_topic>
+        </plugin>
+    </gazebo>
+
+    <gazebo reference="right_gripper_link">
+        <mu1>100</mu1>
+        <mu2>100</mu2>
+        <minDepth>0.001</minDepth>
+        <maxVel>0.1</maxVel>
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+    </gazebo>
+  
+    <gazebo reference="left_gripper_link">
+        <mu1>100</mu1>
+        <mu2>100</mu2>
+        <minDepth>0.001</minDepth>
+        <maxVel>0.1</maxVel>
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+    </gazebo> -->
+
+    <gazebo>
+        <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so" >
+            <parameters>$(find sort_robotic_arm_description)/yaml/config_yaml.yaml</parameters>            
+        </plugin>
+    </gazebo>
+</robot>

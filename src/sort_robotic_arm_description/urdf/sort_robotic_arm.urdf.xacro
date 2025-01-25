@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<robot name="sort_robotic_arm" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:include filename="common_properties.xacro" />
+    <xacro:include filename="arm_links.xacro" />
+    <xacro:include filename="arm_joints.xacro" />
+    <xacro:include filename="camera_plugin.xacro" />    
+    <xacro:include filename="common_properties_gazebo.xacro" />
+
+</robot>
