@@ -19,6 +19,10 @@ public:
             "/arm_controller/joint_trajectory", 10);
    }
 
+   /*
+    yoni is the man!
+   */
+
 private:
     rclcpp::Subscription<sort_robotic_arm_interface::msg::Coordinates>::SharedPtr detected_objects_sub_;
     rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr trajectory_publisher_;
