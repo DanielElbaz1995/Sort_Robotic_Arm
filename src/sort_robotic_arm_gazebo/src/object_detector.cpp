@@ -4,28 +4,24 @@ ObjectDetectorNode::ObjectDetectorNode() : Node("object_detector_node") {
     camera_sub_ = this->create_subscription<sensor_msgs::msg::Image>(
         "/camera/image_raw", 10,
         std::bind(&ObjectDetectorNode::imageCallback, this, std::placeholders::_1));
-    RCLCPP_INFO(this->get_logger(), "creating image publisher");
+    RCLCPP_INFO(this->get_logger(), "Creating image publisher");
 
     image_pub_ = this->create_publisher<sensor_msgs::msg::Image>
         ("processed_image", 10);
-    RCLCPP_INFO(this->get_logger(), "creating Coordinates publisher");
+    RCLCPP_INFO(this->get_logger(), "Creating coordinates publisher");
 
-    objects_pub_ = this->create_publisher<sort_robotic_arm_interface::msg::Coordinates>
-        ("detected_objects", 10);
-    RCLCPP_INFO(this->get_logger(), "Created the node");
-
+    objects_pub_ = rclcpp_action::create_client<SendGoal>(this, "detected_objects");
+    RCLCPP_INFO(this->get_logger(), "Created action client");
 }
 
 void ObjectDetectorNode::imageCallback(const sensor_msgs::msg::Image::SharedPtr raw_frame) {
-    //RCLCPP_INFO(this->get_logger(), "Starting object detection");
     bool foundObjects = detectObjects(raw_frame);
     if (foundObjects){
         SendObjects();
-        //RCLCPP_INFO(this->get_logger(), "After send waiting for response");
-        WaitForResponse();
+        // WaitForResponse();
     }
     else{
-        WaitOneSecond();
+        // WaitOneSecond();
     }
 }
 
@@ -35,12 +31,9 @@ bool ObjectDetectorNode::detectObjects(const sensor_msgs::msg::Image::SharedPtr 
         cv::Mat frame = cv_ptr->image;
         cv::Mat gray_frame;
         cv::cvtColor(frame, gray_frame, cv::COLOR_BGR2GRAY);
-        //RCLCPP_INFO(this->get_logger(), "Detecting circles");
         DetectCircles(frame, gray_frame);
-        //RCLCPP_INFO(this->get_logger(), "Detecting cubes");
         DetectCubes(frame, gray_frame);
 
-        //RCLCPP_INFO(this->get_logger(), "Publishing image");
         sensor_msgs::msg::Image::SharedPtr out_msg = 
             cv_bridge::CvImage(raw_frame->header, "bgr8", frame).toImageMsg();
         image_pub_->publish(*out_msg);
@@ -117,27 +110,52 @@ std::pair<int, int> ObjectDetectorNode::CheckForCube(const std::vector<cv::Point
     return {-1,-1};
 }
 
-void ObjectDetectorNode::SendObjects(){
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+void ObjectDetectorNode::SendObjects() {
     static bool toDelete = false;
-    auto message = sort_robotic_arm_interface::msg::Coordinates();
+    // Wait for the action server
+    objects_pub_->wait_for_action_server();
+
+    // Create a goal
+    auto goal = SendGoal::Goal();
     if (toDelete) return;
     if ((AllCircles.size() > 0)){
-        message.x = AllCircles[0].first;
-        message.y = AllCircles[0].second;
+        goal.x = AllCircles[0].first;
+        goal.y = AllCircles[0].second;
     }
     else{ // AllSquars.size() > 0
-        message.x = AllSquares[0].first;
-        message.y = AllSquares[0].second;
+        goal.x = AllSquares[0].first;
+        goal.y = AllSquares[0].second;
     }
-    objects_pub_->publish(message);
+
+    // Add callback
+    auto options = rclcpp_action::Client<SendGoal>::SendGoalOptions();
+    options.result_callback = std::bind(&ObjectDetectorNode::goal_result_callback, this, _1);
+    options.goal_response_callback = std::bind(&ObjectDetectorNode::goal_response_callback, this, _1);
+
+    // Send the goal
+    objects_pub_->async_send_goal(goal, options);
     toDelete = true;
 }
 
-void ObjectDetectorNode::WaitOneSecond(){
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+void ObjectDetectorNode::goal_result_callback(const SendGoalHandle::WrappedResult &result){
+    std::string goal_achieved = result.result->goal_achieved;
+    RCLCPP_INFO(this->get_logger(), "%s", goal_achieved.c_str());
 }
 
-void ObjectDetectorNode::WaitForResponse(){
+void ObjectDetectorNode::goal_response_callback(const SendGoalHandle::SharedPtr &goal_handle) {
+    if (!goal_handle) {
+        RCLCPP_INFO(this->get_logger(), "Goal got rejected");
+    }
 
+    else {
+        RCLCPP_INFO(this->get_logger(), "Goal got accepted");
+    }
+}
+
+int main(int argc, char** argv) {
+    rclcpp::init(argc, argv);
+    auto node = std::make_shared<ObjectDetectorNode>(); 
+    rclcpp::spin(node);  
+    rclcpp::shutdown();
+    return 0;
 }
