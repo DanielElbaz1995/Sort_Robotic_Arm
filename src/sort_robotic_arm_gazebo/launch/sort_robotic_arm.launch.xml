@@ -1,40 +1,31 @@
 <launch>
-    <let name="urdf_path"
-         value="$(find-pkg-share sort_robotic_arm_description)/urdf/sort_robotic_arm.urdf.xacro" />
-    <!-- <let name="urdf_config_rviz_path"
-         value="$(find-pkg-share sort_robotic_arm_description)/rviz/urdf_config.rviz" /> -->
-    
-    <node pkg="robot_state_publisher" exec="robot_state_publisher">
-        <param name="robot_description"
-                value="$(command 'xacro $(var urdf_path)')" />
-    </node>
+      <let name="urdf_path"
+            value="$(find-pkg-share sort_robotic_arm_description)/urdf/sort_robotic_arm.urdf.xacro" />
 
-    <include file="$(find-pkg-share gazebo_ros)/launch/gazebo.launch.py" >
-          <!-- <arg name="world" value="$(find-pkg-share sort_robotic_arm_gazebo)/world/arm_world.world" /> -->
-          <arg name="world" value="$(find-pkg-share sort_robotic_arm_gazebo)/world/green_ball.world" />
-    </include>
-        
-    <node name="joint_state_controller" pkg="controller_manager" exec="spawner" 
-          respawn="false" output="screen" args="joint_state_broadcaster" />
+      <node pkg="robot_state_publisher" exec="robot_state_publisher">
+            <param name="robot_description"
+                  value="$(command 'xacro $(var urdf_path)')" />
+      </node>
 
-    <node name="arm_controller" pkg="controller_manager" exec="spawner" 
-          respawn="false" output="screen" args="arm_controller" />
+      <include file="$(find-pkg-share gazebo_ros)/launch/gazebo.launch.py" >
+            <arg name="world" value="$(find-pkg-share sort_robotic_arm_gazebo)/world/robot_world.world" />
+      </include>
+            
+      <node name="joint_state_controller" pkg="controller_manager" exec="spawner" 
+            respawn="false" output="screen" args="joint_state_broadcaster" />
 
-    <node name="gripper_controller" pkg="controller_manager" exec="spawner" 
-          respawn="false" output="screen" args="gripper_controller" />
+      <node name="arm_controller" pkg="controller_manager" exec="spawner" 
+            respawn="false" output="screen" args="arm_controller" />
 
-    <node pkg="sort_robotic_arm_gazebo" exec="object_detector_node" output="screen">
-        <param name="camera_topic" value="/camera/image_raw"/>
-        <param name="processed_image_topic" value="/processed_image"/>
-    </node>
+      <node pkg="sort_robotic_arm_gazebo" exec="object_detector_node" output="screen">
+            <param name="camera_topic" value="/camera/image_raw"/>
+            <param name="processed_image_topic" value="/processed_image"/>
+      </node>
 
-    <node pkg="gazebo_ros" exec="spawn_entity.py"
-           args="-topic robot_description -entity sort_robotic_arm" />
+      <node pkg="gazebo_ros" exec="spawn_entity.py"
+            args="-topic robot_description -entity sort_robotic_arm" />
 
-    <!-- <node pkg="sort_robotic_arm_gazebo" exec="arm_controller_node" output="screen" /> -->
+      <node pkg="sort_robotic_arm_gazebo" exec="arm_controller_node" output="screen" />
 
-    <node pkg="sort_robotic_arm_gazebo" exec="IK_calculation_node" output="screen" />
-
-    <!-- <node pkg="rviz2" exec="rviz2" output="screen"
-          args="-d $(var urdf_config_rviz_path)" /> -->
+      <node pkg="sort_robotic_arm_gazebo" exec="IK_calculation_node" output="screen" />
 </launch>
