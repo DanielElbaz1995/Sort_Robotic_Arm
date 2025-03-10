@@ -15,6 +15,9 @@
   <depend>cv_bridge</depend>
   <depend>opencv</depend>
   <depend>sort_robotic_arm_interface</depend>
+  <depend>gazebo_msgs</depend>
+
+  <depend>rclcpp_action</depend>
 
   <exec_depend>sort_robotic_arm_description</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
