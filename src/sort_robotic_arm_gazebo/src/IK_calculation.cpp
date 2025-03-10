@@ -1,123 +1,122 @@
-#include <rclcpp/rclcpp.hpp>
-#include <sort_robotic_arm_interface/msg/coordinates.hpp>
-#include <sort_robotic_arm_interface/msg/coordinates_list.hpp>
-#include <trajectory_msgs/msg/joint_trajectory.hpp>
-#include <trajectory_msgs/msg/joint_trajectory_point.hpp>
-#include <chrono>
-#include <thread>
+#include "IK_calculation.hpp"
 
-class IKCalculationNode : public rclcpp::Node {
-public:
-   IKCalculationNode() : Node("IK_calculation_node") {
-        detected_objects_sub_ = this->create_subscription<sort_robotic_arm_interface::msg::Coordinates>(
-           "detected_objects", 10, [this](sort_robotic_arm_interface::msg::Coordinates::SharedPtr msg) {
-               x_target = msg->x;
-               y_target = msg->y;
-               calculate_ik();
-           });
-        trajectory_publisher_ = this->create_publisher<trajectory_msgs::msg::JointTrajectory>(
-            "/arm_controller/joint_trajectory", 10);
-   }
+IKCalculationNode::IKCalculationNode() : Node("IK_calculation_node") {
+    detected_objects_ = rclcpp_action::create_server<SendGoal>(
+        this,
+        "detected_objects",
+        std::bind(&IKCalculationNode::goal_callback, this, _1, _2),
+        std::bind(&IKCalculationNode::cancel_callback, this, _1),
+        std::bind(&IKCalculationNode::handle_accepted_callback, this, _1)
+    );
+    RCLCPP_INFO(this->get_logger(), "IK_calculation Server has been started");
 
-   /*
-    yoni is the man!
-   */
+    angles_publisher_ = rclcpp_action::create_client<SendAngle>(this, "angles_moves");
+    RCLCPP_INFO(this->get_logger(), "IK_calculation Client has been started");
+}
 
-private:
-    rclcpp::Subscription<sort_robotic_arm_interface::msg::Coordinates>::SharedPtr detected_objects_sub_;
-    rclcpp::Publisher<trajectory_msgs::msg::JointTrajectory>::SharedPtr trajectory_publisher_;
-    int64_t x_target;
-    int64_t y_target;
-    double y_offset = 162;
-    double x_width_half = 320;
-    //double m_to_pixels = 135; // we checked with cube size 1.2 and came width of 162 : (162/1.2 = 135)
-    double arm1 = 162; //1.2 * m_to_pixels;
-    double arm2 = 160.65; //1.199 * m_to_pixels;
-    double arm3 = 164.16; //1.216 * m_to_pixels;
-    double base_height = 131.86;  //0.9768 * m_to_pixels;
+bool IKCalculationNode::ObjectTooFarFor90Deg(double radIn3D){
+    if ((arm2 + arm1) < radIn3D)
+        return true;
+    else return false;
+}   
 
-    std::vector<std::string> joint_names_ = {
-        "servo1_waist_joint",
-        "servo2_arm1_joint",
-        "arm1_servo3_joint",
-        "micro_servo1_arm3_joint",
-        "micro_servo2_gripper_base_joint",
-        "micro_servo3_gear2_joint",
-        "gripper_base_gear1_joint",
-        "gripper_base_up_right_gripper_link_joint",
-        "gripper_base_up_left_gripper_link_joint",
-        "gripper_base_down_right_gripper_link_joint",
-        "gripper_base_down_left_gripper_link_joint",
-        "gear2_right_gripper_joint",
-        "gear1_left_gripper_joint",
+rclcpp_action::GoalResponse IKCalculationNode::goal_callback(
+    const rclcpp_action::GoalUUID &uuid, std::shared_ptr<const SendGoal::Goal> goal)
+{
+    (void)uuid;
+    RCLCPP_INFO(this->get_logger(), "Recieved a goal");
+    int x_target = goal->x;
+    int y_target = goal->y;
+    double radIn2D = std::sqrt(std::pow(x_target - x_width_half, 2) + std::pow(y_target + y_offset, 2));
+    double radIn3D = std::sqrt(std::pow(base_height - arm3, 2) + std::pow(radIn2D, 2));
+    if(ObjectTooFarFor90Deg(radIn3D)) {
+        RCLCPP_INFO(this->get_logger(), "Rejecting the goal: Target too far");
+        return rclcpp_action::GoalResponse::REJECT;
+    }
+    RCLCPP_INFO(this->get_logger(), "Accepting the goal");
+    return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+}
+
+rclcpp_action::CancelResponse IKCalculationNode::cancel_callback(const std::shared_ptr<SendGoalHandle> goal_handle) {
+    (void)goal_handle;
+    return rclcpp_action::CancelResponse::ACCEPT;
+}
+
+void IKCalculationNode::handle_accepted_callback(const std::shared_ptr<SendGoalHandle> goal_handle) {
+    RCLCPP_INFO(this->get_logger(), "Executing the goal");
+    execute_goal(goal_handle);
+}
+
+void IKCalculationNode::execute_goal(const std::shared_ptr<SendGoalHandle> goal_handle) {
+    // Get request from goal
+    int x_target = goal_handle->get_goal()->x;
+    int y_target = goal_handle->get_goal()->y;
+    
+    // Execute the action
+    calculate_ik(x_target, y_target, goal_handle);
+}
+
+void IKCalculationNode::calculate_ik(int x_target, int y_target, const std::shared_ptr<SendGoalHandle> goal_handle) {
+    double alpha = std::atan2(x_target - x_width_half, y_target + y_offset);
+
+    // New target x-z plane
+    x_target = std::sqrt(std::pow(x_target - x_width_half, 2) + std::pow(y_target + y_offset, 2));
+    double z_target = -base_height;
+    double psi = -M_PI / 2;
+
+    // Calculate earlier point
+    double x = x_target - arm3 * std::cos(psi);
+    double z = z_target - arm3 * std::sin(psi);
+
+    // Using law of cosines for second joint
+    double cos_theta2 = (pow(x, 2) + pow(z, 2) - pow(arm1, 2) - pow(arm2, 2)) / (2 * arm1 * arm2);
+    double theta2 = -std::acos(cos_theta2);
+    
+    // Calculate theta1 using geometry
+    double beta = std::atan2((arm2 * std::sin(theta2)) , (arm1 + (arm2 * std::cos(theta2))));
+    double gamma = std::atan2(z, x);
+    double theta1 = ((gamma - beta) - M_PI / 4);
+    
+    // Calculate theta3 to keep end-effector horizontal
+    double theta3 = psi - (theta1 + theta2) - M_PI / 4;
+
+    SendAngles(alpha, theta1, theta2, theta3, goal_handle);
+}
+
+void IKCalculationNode::SendAngles(double alpha, double theta1, double theta2, double theta3,
+                                    const std::shared_ptr<SendGoalHandle> goal_handle) 
+{
+    // Wait for the action server
+    angles_publisher_->wait_for_action_server();
+
+    // Create a goal
+    auto goal = SendAngle::Goal();
+    goal.alpha = alpha;
+    goal.theta1 = theta1;
+    goal.theta2 = theta2;
+    goal.theta3 = theta3;
+
+    // Add callback
+    auto options = rclcpp_action::Client<SendAngle>::SendGoalOptions();
+    options.result_callback = [this, goal_handle](const SendAngleGoalHandle::WrappedResult &result) {
+        goal_result_callback(result, goal_handle);
     };
 
-    void moveArm(const std::vector<double>& positions, double duration_sec) {
-            auto rotation = std::make_unique<trajectory_msgs::msg::JointTrajectory>();
-            rotation->joint_names = joint_names_;
+    // Send the goal
+    angles_publisher_->async_send_goal(goal, options);
+}
 
-            trajectory_msgs::msg::JointTrajectoryPoint point;
-            point.positions = positions;
-            point.time_from_start.sec = static_cast<int>(duration_sec);
-            point.time_from_start.nanosec = static_cast<uint32_t>((duration_sec - static_cast<int>(duration_sec)) * 1e9);
+void IKCalculationNode::goal_result_callback(const SendAngleGoalHandle::WrappedResult &result,
+                                             const std::shared_ptr<SendGoalHandle> goal_handle)
+{
+    std::string goal_achieved = result.result->completed_angles;
+    RCLCPP_INFO(this->get_logger(), "%s", goal_achieved.c_str());
 
-            rotation->points.push_back(point);
-            trajectory_publisher_->publish(*rotation);
-    }
-
-    bool ObjectTooFarFor90Deg(double radIn3D){
-        if ((arm2 + arm1)<radIn3D)
-            return true;
-        else return false;
-    }   
-
-    void CalcAnglesforArmin90Deg(double *beta1, double *beta2, double *beta3, double radIn2D, double radIn3D){
-        double theta1; //triangle angle 1
-        double theta2; //triangle angle 2
-        double theta3; //triangle angle 3
-        double diffAngleBaseArm3in90deg = std::atan2(arm3 - base_height, radIn2D);
-        theta3 = std::acos((std::pow(radIn3D, 2) + std::pow(arm2, 2) - std::pow(arm1, 2)) / (2 * radIn3D * arm2));
-        theta2 = std::acos((std::pow(arm2, 2) + std::pow(arm1, 2) - std::pow(radIn3D, 2)) / (2 * arm1 * arm2));
-        theta1 = ((M_PI - theta2) - theta3);
-        *beta2 = theta2 - M_PI;
-        *beta3 = theta3 - M_PI/2;
-        *beta1 = (theta1 + diffAngleBaseArm3in90deg) - (M_PI / 4);
-
-    }
-
-    void calculate_ik() {
-        double alpha; //alpha is the angle of servo 1 (base)
-        double beta1; //beta1 is the angle of servo 2 (arm1)
-        double beta2; //beta2 is the angle of servo 2 (arm2)
-        double beta3; //beta3 is the angle of servo 2 (arm3)
-        double radIn2D = std::sqrt(std::pow(x_target - x_width_half, 2) + std::pow(y_target + y_offset, 2));
-        double radIn3D = std::sqrt(std::pow(base_height - arm3, 2) + std::pow(radIn2D, 2));
-        double grip_open_angle = 0.785;
-        double grip_close_angle = 0.39;
-        alpha = std::atan2(x_target-x_width_half, y_target + y_offset);
-        if(ObjectTooFarFor90Deg(radIn3D)){
-            beta1 = 0;
-            beta2 = 0;
-            beta3 = 0;
-        }
-        else{ //arm3 goes to 90 deg
-            CalcAnglesforArmin90Deg(&beta1, &beta2, &beta3, radIn2D, radIn3D);
-        }
-        RCLCPP_INFO(this->get_logger(), "beta1 = %.2f", beta1);
-        RCLCPP_INFO(this->get_logger(), "beta2 = %.2f", beta2);
-        RCLCPP_INFO(this->get_logger(), "beta3 = %.2f", beta3);
-        
-        std::vector<double> position_sequence = {
-         alpha, beta1, beta2, 1.545, beta3, grip_open_angle, grip_open_angle,
-         grip_open_angle, grip_open_angle, grip_open_angle, grip_open_angle,
-         grip_open_angle, grip_open_angle};
-        moveArm(position_sequence, 10.0);
-        std::this_thread::sleep_for(std::chrono::seconds(15));
-        position_sequence = {
-         alpha, beta1, beta2, 1.545, beta3, grip_close_angle, grip_close_angle, grip_close_angle, grip_close_angle, grip_close_angle, grip_close_angle, grip_close_angle, grip_close_angle};
-        moveArm(position_sequence, 10.0);
-    }
-};
+    // Set final state and return results
+    auto final_result  = std::make_shared<SendGoal::Result>();
+    final_result->goal_achieved = "Goal Achieved!";
+    goal_handle->succeed(final_result);
+}
 
 int main(int argc, char** argv) {
    rclcpp::init(argc, argv);
