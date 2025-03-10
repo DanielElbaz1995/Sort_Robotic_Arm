@@ -46,8 +46,6 @@
     <xacro:revolute_joint name="micro_servo3_gear2" parent="micro_servo3_link" child="gear2_link"
                        xyz="0.179 -0.36 0.14" rpy="0 0 0" xyz_rotate="0 0 1"
                        lower="0.1" upper="1.3" effort="10.0" velocity="1.0" />
-    <!-- <xacro:continuous_joint name="micro_servo3_gear2" parent="micro_servo3_link" child="gear2_link"
-                       xyz="0.179 -0.36 0.14" rpy="0 0 0" xyz_rotate="0 0 1" /> -->
 
     <xacro:mimic_continuous_joint name="gripper_base_gear1" parent="gripper_base_link" child="gear1_link"
                        xyz="-0.09 -0.36 0.14" rpy="0 0 3.05" xyz_rotate="0 0 -1"/>
@@ -69,4 +67,24 @@
                        
     <xacro:mimic_continuous_joint name="gear1_left_gripper" parent="gear1_link" child="left_gripper_link"
                        xyz="0 0.3075 0" rpy="0 0 0.45" xyz_rotate="0 0 1"/>
+    
+    <xacro:macro name="simple_transmission" params="joint_name">
+        <transmission name="${joint_name}_trans">
+            <type>transmission_interface/SimpleTransmission</type>
+            <joint name="${joint_name}">
+                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            </joint>
+            <actuator name="${joint_name}_motor">
+                <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+                <mechanicalReduction>1</mechanicalReduction>
+            </actuator>
+        </transmission>
+    </xacro:macro>
+
+    <xacro:simple_transmission joint_name="servo1_waist_joint"/>
+    <xacro:simple_transmission joint_name="servo2_arm1_joint"/>
+    <xacro:simple_transmission joint_name="arm1_servo3_joint"/>
+    <xacro:simple_transmission joint_name="micro_servo1_arm3_joint"/>
+    <xacro:simple_transmission joint_name="micro_servo2_gripper_base_joint"/>
+    <xacro:simple_transmission joint_name="micro_servo3_gear2_joint"/>  <!-- Gripper -->
 </robot>
