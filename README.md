@@ -2,6 +2,9 @@
 
 This project demonstrates the design, simulation, and real-life implementation of a robotic arm that sorts shapes into suitable bins using ROS2, Gazebo, and RViz. The arm was designed in SolidWorks, converted to URDF, simulated using Gazebo, and implemented with a 3D-printed structure powered by a Raspberry Pi and servo motors. Image processing is used to identify and classify the shapes for sorting.
 
+![image](https://github.com/user-attachments/assets/424a5f33-f143-4e4a-8472-dc625fa8d144)
+
+
 # Project overview
 **1. Design and Modeling**  
    The robotic arm was designed in SolidWorks using accurate kinematic modeling.
