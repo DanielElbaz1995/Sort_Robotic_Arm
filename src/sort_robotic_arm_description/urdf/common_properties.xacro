@@ -1,134 +1,99 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <material name="blue">
-        <color rgba="0 0 0.5 1" />
-    </material>
-
-    <material name="yellow">
-        <color rgba="1 1 0 1" />
-    </material>
-
-    <material name="grey">
-        <color rgba="0.5 0.5 0.5 1" />
-    </material>
-
-    <material name="red">
-        <color rgba="1 0.2 0 1" />
-    </material>
-
-    <xacro:macro name="tower_link" params="name m l w h xyz rpy">
-        <link name="${name}_tower_link"> 
-            <visual>
-                <geometry>
-                    <box size="${l} ${w} ${h}"/>
-                </geometry>
-                <origin xyz="${xyz}" rpy="${rpy}"/>
-                <material name="blue" />
-            </visual>
-            <collision>
-                <geometry>
-                    <box size="${l} ${w} ${h}" />
-                </geometry>
-                <origin xyz="${xyz}" rpy="${rpy}"/>
-            </collision>
-            <inertial>
-                <origin xyz="${xyz}" rpy="${rpy}"/>
-                <mass value="${m}" />
-                <inertia ixx="${(m/12) * (h*h + l*l)}" ixy="0" ixz="0"
-                        iyy="${(m/12) * (w*w + l*l)}" iyz="0"
-                        izz="${(m/12) * (h*h + w*w)}" />
-            </inertial>
-        </link>
+    <xacro:macro name="Black" params="link" >
+        <gazebo reference="${link}" >
+            <material>Gazebo/FlatBlack</material>
+        </gazebo>
     </xacro:macro>
 
-    <xacro:macro name="box_link" params="name file xyz_visual rpy_visual size mass color
-                                      xyz_collision rpy_collision ixx ixy ixz iyy iyz izz" > 
-        <link name="${name}_link"> 
-            <visual>
-                <geometry>
-                    <mesh filename="${file}" scale="0.01 0.01 0.01"/>
-                </geometry>
-                <origin xyz="${xyz_visual}" rpy="${rpy_visual}"/>
-                <material name="${color}" />
-            </visual>
-            <collision>
-                <geometry>
-                    <box size="${size}" />
-                </geometry>
-                <origin xyz="${xyz_collision}" rpy="${rpy_collision}"/>
-            </collision>
-            <inertial>
-                <origin xyz="${xyz_collision}" rpy="${rpy_collision}"/>
-                <mass value="${mass}" />
-                <inertia ixx="${ixx}" ixy="${ixy}" ixz="${ixz}"
-                        iyy="${iyy}" iyz="${iyz}"
-                        izz="${izz}" />
-            </inertial>
-        </link>
+    <xacro:macro name="Grey" params="link" >
+        <gazebo reference="${link}" >
+            <material>Gazebo/Gray</material>
+        </gazebo>
     </xacro:macro>
 
-    <xacro:macro name="cylinder_link" params="name file xyz_visual rpy_visual radius length
-                            mass color xyz_collision rpy_collision ixx ixy ixz iyy iyz izz" > 
-        <link name="${name}_link"> 
-            <visual>
-                <geometry>
-                    <mesh filename="${file}" scale="0.01 0.01 0.01"/>
-                </geometry>
-                <origin xyz="${xyz_visual}" rpy="${rpy_visual}"/>
-                <material name="${color}" />
-            </visual>
-            <collision>
-                <geometry>
-                    <cylinder radius="${radius}" length="${length}" />
-                </geometry>
-                <origin xyz="${xyz_collision}" rpy="${rpy_collision}"/>
-            </collision>
-            <inertial>
-                <origin xyz="${xyz_collision}" rpy="${rpy_collision}"/>
-                <mass value="${mass}" />
-                <inertia ixx="${ixx}" ixy="${ixy}" ixz="${ixz}"
-                        iyy="${iyy}" iyz="${iyz}"
-                        izz="${izz}" />
-            </inertial>
-        </link>
+    <xacro:macro name="Blue" params="link" >
+        <gazebo reference="${link}" >
+            <material>Gazebo/Blue</material>
+        </gazebo>
     </xacro:macro>
 
-    <xacro:macro name="fixed_joint" params="name parent child xyz rpy" > 
-        <joint name="${name}_joint" type="fixed">
-            <parent link="${parent}"/>
-            <child link="${child}"/>
-            <origin xyz="${xyz}" rpy="${rpy}"/>
+    <xacro:macro name="Wood" params="link" >
+        <gazebo reference="${link}" >
+            <material>Gazebo/WoodPallet</material>
+        </gazebo>
+    </xacro:macro>
+
+    <xacro:macro name="joint_plugin" params="joint initial_value" >
+        <joint name="${joint}">
+            <command_interface name="position" />
+            <state_interface name="position" >
+                <param name="initial_value">${initial_value}</param>
+            </state_interface>
+            <state_interface name="velocity" />
         </joint>
     </xacro:macro>
 
-    <xacro:macro name="continuous_joint" params="name parent child xyz rpy xyz_rotate" > 
-        <joint name="${name}_joint" type="continuous">
-            <parent link="${parent}"/>
-            <child link="${child}"/>
-            <origin xyz="${xyz}" rpy="${rpy}"/>
-            <axis xyz="${xyz_rotate}"/>
+    <xacro:macro name="joint_plugin_effort" params="joint initial_value" >
+        <joint name="${joint}">
+            <command_interface name="effort" >
+            </command_interface>
+            <state_interface name="position" >
+                <param name="initial_value">${initial_value}</param>
+            </state_interface>
+            <state_interface name="velocity" />
         </joint>
     </xacro:macro>
 
-    <xacro:macro name="mimic_continuous_joint" params="name parent child xyz rpy xyz_rotate" > 
-        <joint name="${name}_joint" type="continuous">
-            <parent link="${parent}"/>
-            <child link="${child}"/>
-            <origin xyz="${xyz}" rpy="${rpy}"/>
-            <axis xyz="${xyz_rotate}"/>
-            <mimic joint="micro_servo3_gear2_joint" multiplier="1.0" offset="0.0"/>
-        </joint>
-    </xacro:macro>
+    <xacro:Black link="base_link" />
+    <xacro:Grey link="servo1_link" />
+    <xacro:Black link="waist_link" />
+    <xacro:Grey link="servo2_link" />
+    <xacro:Black link="arm1_link" />
+    <xacro:Grey link="servo3_link" />
+    <xacro:Black link="arm2_link" />
+    <xacro:Blue link="micro_servo1_link" />
+    <xacro:Black link="arm3_link" />
+    <xacro:Blue link="micro_servo2_link" />
+    <xacro:Black link="gripper_base_link" />
+    <xacro:Blue link="micro_servo3_link" />
+    <xacro:Black link="gear2_link" />
+    <xacro:Black link="gear1_link" />
+    <xacro:Black link="up_right_gripper_link_link" />
+    <xacro:Black link="up_left_gripper_link_link" />
+    <xacro:Black link="down_right_gripper_link_link" />
+    <xacro:Black link="down_left_gripper_link_link" />
+    <xacro:Black link="right_gripper_link" />
+    <xacro:Black link="left_gripper_link" />
 
-    <xacro:macro name="revolute_joint" params="name parent child xyz rpy xyz_rotate
-                                               lower upper effort velocity" > 
-        <joint name="${name}_joint" type="revolute">
-            <parent link="${parent}"/>
-            <child link="${child}"/>
-            <origin xyz="${xyz}" rpy="${rpy}"/>
-            <axis xyz="${xyz_rotate}"/>
-            <limit lower="${lower}" upper="${upper}" effort="${effort}" velocity="${velocity}"/>
-        </joint>
-    </xacro:macro>
+    <xacro:Wood link="right_tower_link" />
+    <xacro:Wood link="left_tower_link" />
+    <xacro:Wood link="up_tower_link" />
+
+    <ros2_control name="GazeboSimSystem" type="system">
+        <hardware>
+            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+        </hardware> 
+
+        <xacro:joint_plugin joint="servo1_waist_joint" initial_value="0.0" />
+        <xacro:joint_plugin joint="servo2_arm1_joint" initial_value="0.0" />
+        <xacro:joint_plugin joint="arm1_servo3_joint" initial_value="0.0" />
+        <xacro:joint_plugin joint="micro_servo1_arm3_joint" initial_value="0.0" />
+        <xacro:joint_plugin joint="micro_servo2_gripper_base_joint" initial_value="0.0" />
+        <xacro:joint_plugin joint="micro_servo3_gear2_joint" initial_value="0.785" />
+        <xacro:joint_plugin joint="gripper_base_gear1_joint" initial_value="0.785" />
+        <xacro:joint_plugin joint="gripper_base_up_right_gripper_link_joint" initial_value="0.785" />
+        <xacro:joint_plugin joint="gripper_base_up_left_gripper_link_joint" initial_value="0.785" />
+        <xacro:joint_plugin joint="gripper_base_down_right_gripper_link_joint" initial_value="0.785" />
+        <xacro:joint_plugin joint="gripper_base_down_left_gripper_link_joint" initial_value="0.785" />
+        <xacro:joint_plugin joint="gear2_right_gripper_joint" initial_value="0.785" />
+        <xacro:joint_plugin joint="gear1_left_gripper_joint" initial_value="0.785" />
+    </ros2_control>
+
+    <gazebo>
+        <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so" >
+            <parameters>$(find sort_robotic_arm_description)/yaml/config_yaml.yaml</parameters>            
+        </plugin>
+    </gazebo>
 </robot>
