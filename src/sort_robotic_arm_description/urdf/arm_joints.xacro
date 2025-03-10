@@ -13,15 +13,9 @@
     <xacro:fixed_joint name="waist_servo2" parent="waist_link" child="servo2_link"
                        xyz="0 0 0" rpy="-0.785 0 0" />
 
-    <!-- <xacro:revolute_joint name="servo2_arm1" parent="servo2_link" child="arm1_link"
-                       xyz="0.068 -0.3755 0.18" rpy="0 -1.57 0" xyz_rotate="0 0 1"
-                       lower="-0.785" upper="0.785" effort="10.0" velocity="1.0" /> -->
     <xacro:continuous_joint name="servo2_arm1" parent="servo2_link" child="arm1_link"
                        xyz="0.068 -0.3755 0.18" rpy="0 -1.57 0" xyz_rotate="0 0 1" />
 
-    <!-- <xacro:revolute_joint name="arm1_servo3" parent="arm1_link" child="servo3_link"
-                       xyz="0 -1.2 0" rpy="0 0 0" xyz_rotate="0 0 1"
-                       lower="-3.14" upper="0" effort="10.0" velocity="1.0" /> -->
     <xacro:continuous_joint name="arm1_servo3" parent="arm1_link" child="servo3_link"
                        xyz="0 -1.2 0" rpy="0 0 0" xyz_rotate="0 0 1" />
 
